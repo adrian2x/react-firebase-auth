@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 import { createUser } from '../lib/requests'
 import './firebaseui.scss'
 
+// IMPORTANT - Configure your API keys in `firebase.ts`
 export default function FirebaseAuth() {
   useEffect(initializeFirebaseUI, [])
   return (
@@ -40,8 +41,9 @@ export function closeDialog() {
 }
 
 function initializeFirebaseUI() {
-  // Initialize the FirebaseUI Widget using Firebase.
+  // Load the firebase library dynamically
   import('firebaseui').then((firebaseui) => {
+    // Initialize FirebaseUI
     let ui = new firebaseui.auth.AuthUI(firebase.auth())
 
     // Hold a reference to the anonymous current user.
@@ -51,6 +53,10 @@ function initializeFirebaseUI() {
     ui.start(`#firebase-auth-ui`, {
       // Will use popup for IDP Providers sign-in flow instead of the default, redirect.
       signInFlow: 'popup',
+      // Whether to upgrade anonymous users should be explicitly provided.
+      // The user must already be signed in anonymously before FirebaseUI is
+      // rendered.
+      autoUpgradeAnonymousUsers: true,
       // signInSuccessUrl: '',
       signInOptions: [
         // Leave the lines as is for the providers you want to offer your users.
@@ -58,11 +64,12 @@ function initializeFirebaseUI() {
         {
           provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
           requireDisplayName: true
-        }
+        },
         // firebase.auth.PhoneAuthProvider.PROVIDER_ID,
         // firebase.auth.FacebookAuthProvider.PROVIDER_ID,
         // firebase.auth.TwitterAuthProvider.PROVIDER_ID,
         // firebase.auth.GithubAuthProvider.PROVIDER_ID,
+        firebaseui.auth.AnonymousAuthProvider.PROVIDER_ID
       ],
       // Terms of service url.
       // tosUrl: '<your-tos-url>',
@@ -85,7 +92,7 @@ function initializeFirebaseUI() {
               email: user.email,
               displayName: user.displayName,
               photoURL: user.photoURL,
-              created: Date.now(),
+              created: Date.now()
               // emailVerified: signedInUser.emailVerified,
               // phoneNumber: signedInUser.phoneNumber,
               // providerData: signedInUser.providerData,
